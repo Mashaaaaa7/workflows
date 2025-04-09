@@ -2,28 +2,26 @@ name: Build and Delivery
 
 on:
   workflow_run:
-    workflows: ["Test Python App"]  # Название workflow, за которым следим
+    workflows: ["Test Python App"]
     types:
       - completed
-    branches:
-      - main  # только если оно завершилось в main
 
 jobs:
-  test:
+  build-and-push:
     runs-on: ubuntu-latest
 
-      steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ vars.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Install dependencies
-    uses: docker/build-push-action@v6
-    with:
-        push: true
-        tags:  tags: ${{ vars.DOCKERHUB_USERNAME }}/my-app:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/my-app:latest
