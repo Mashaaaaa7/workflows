@@ -2,17 +2,18 @@ name: Build and Delivery
 
 on:
   workflow_run:
-    workflows: ["Test Python App"]  # Название workflow, за которым следим
+    workflows: ["Test Python App"]  # Название workflow
     types:
       - completed
     branches:
-      - main  # только если оно завершилось в main
+      - dev  # Запускать только если 'Test Python App' завершился в ветке dev
 
 jobs:
   test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}  # Только при успешном завершении
     runs-on: ubuntu-latest
 
-      steps:
+    steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
@@ -23,7 +24,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Install dependencies
-    uses: docker/build-push-action@v6
-    with:
+      uses: docker/build-push-action@v6
+      with:
         push: true
-        tags:  tags: ${{ vars.DOCKERHUB_USERNAME }}/my-app:latest
+        tags: ${{ vars.DOCKERHUB_USERNAME }}/my-app:latest
